@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Tool Lab — Compare the Best AI Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Carter+One&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg: #6f6f6f;
+    --bg2: #525252;
+    --bg3: #4a4a4a;
+    --card: #3d3d3d;
+    --card-hover: #454545;
+    --border: #787878;
+    --accent: #158ca3;
+    --accent2: #7c3aed;
+    --accent3: #d99a1c;
+    --text: #e8ecf4;
+    --text2: #8892a4;
+    --text3: #4a5268;
+    --pro: #10b981;
+    --con: #f43f5e;
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --glow: 0 0 30px rgba(21,140,163,0.2);
+  }
+  :root[data-theme="light"] {
+    --bg: #fcf4eb;
+    --bg2: #f0e8d8;
+    --bg3: #e8dcc8;
+    --card: #ffffff;
+    --card-hover: #f5f7ff;
+    --border: #d0d5e8;
+    --accent: #0066cc;
+    --accent2: #7c3aed;
+    --accent3: #d99a1c;
+    --text: #1a1d2e;
+    --text2: #4a5268;
+    --text3: #8892a4;
+    --pro: #059669;
+    --con: #e11d48;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --glow: 0 0 30px rgba(0,102,204,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 110%;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .logo {
+    font-family: 'Carter One', cursive;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .logo span { color: var(--accent); }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .compare-badge {
+    background: var(--accent2);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: none;
+  }
+  .compare-badge.visible { display: block; }
+  .compare-badge:hover { opacity: 0.85; }
+
+  .theme-toggle {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  [data-theme="dark"]  .theme-toggle { background: #000000; border-color: #000000; }
+  [data-theme="light"] .theme-toggle { background: #509cfa; border-color: #509cfa; }
+  .theme-toggle:hover { opacity: 0.85; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 3.5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-family: 'Carter One', cursive;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 0.75rem;
+    color: #158ca3;
+  }
+  [data-theme="dark"] .hero h1 {
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4), 0 4px 24px rgba(0,0,0,0.2);
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: #d99a1c;
+  }
+  .hero p {
+    color: #333333;
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+    font-weight: 400;
+  }
+
+  /* ── FILTERS ── */
+  .controls {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .search-wrap {
+    flex: 1;
+    min-width: 220px;
+    position: relative;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 10px 12px 10px 36px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--text3); }
+
+  select, .filter-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+  }
+  select:hover, .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .reset-btn {
+    background: #cc0000;
+    border: 1px solid #7a7a7a;
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { background: #2e7d32; border-color: #7a7a7a; color: #ffffff; }
+
+  /* ── RESULTS COUNT ── */
+  .results-info {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 1rem;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease both;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  /* Keep card content above starfield */
+  .card > * { position: relative; z-index: 2; }
+
+  /* Small stars layer */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 1px; height: 1px;
+    border-radius: 50%;
+    background: transparent;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+    transition: opacity 0.6s ease;
+    box-shadow:
+      12px 8px 0 0 rgba(255,255,255,0.85),
+      45px 35px 0 0 rgba(255,255,255,0.7),
+      98px 12px 0 0 rgba(255,255,255,0.9),
+      167px 58px 0 0 rgba(255,255,255,0.6),
+      230px 28px 0 0 rgba(255,255,255,0.8),
+      260px 72px 0 0 rgba(255,255,255,0.75),
+      28px 95px 0 0 rgba(255,255,255,0.65),
+      75px 118px 0 0 rgba(255,255,255,0.9),
+      142px 82px 0 0 rgba(255,255,255,0.7),
+      198px 145px 0 0 rgba(255,255,255,0.85),
+      55px 168px 0 0 rgba(255,255,255,0.6),
+      118px 188px 0 0 rgba(255,255,255,0.8),
+      178px 135px 0 0 rgba(255,255,255,0.7),
+      252px 198px 0 0 rgba(255,255,255,0.65),
+      22px 215px 0 0 rgba(255,255,255,0.9),
+      88px 235px 0 0 rgba(255,255,255,0.75),
+      155px 208px 0 0 rgba(255,255,255,0.8),
+      218px 248px 0 0 rgba(255,255,255,0.6),
+      270px 222px 0 0 rgba(255,255,255,0.85),
+      38px 242px 0 0 rgba(255,255,255,0.7),
+      /* duplicate set offset by 250px for seamless loop */
+      12px 258px 0 0 rgba(255,255,255,0.85),
+      45px 285px 0 0 rgba(255,255,255,0.7),
+      98px 262px 0 0 rgba(255,255,255,0.9),
+      167px 308px 0 0 rgba(255,255,255,0.6),
+      230px 278px 0 0 rgba(255,255,255,0.8),
+      260px 322px 0 0 rgba(255,255,255,0.75),
+      28px 345px 0 0 rgba(255,255,255,0.65),
+      75px 368px 0 0 rgba(255,255,255,0.9),
+      142px 332px 0 0 rgba(255,255,255,0.7),
+      198px 395px 0 0 rgba(255,255,255,0.85),
+      55px 418px 0 0 rgba(255,255,255,0.6),
+      118px 438px 0 0 rgba(255,255,255,0.8),
+      178px 385px 0 0 rgba(255,255,255,0.7),
+      252px 448px 0 0 rgba(255,255,255,0.65),
+      22px 465px 0 0 rgba(255,255,255,0.9),
+      88px 485px 0 0 rgba(255,255,255,0.75),
+      155px 458px 0 0 rgba(255,255,255,0.8),
+      218px 498px 0 0 rgba(255,255,255,0.6),
+      270px 472px 0 0 rgba(255,255,255,0.85),
+      38px 492px 0 0 rgba(255,255,255,0.7);
+  }
+
+  /* Larger glowing stars layer */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: transparent;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+    transition: opacity 0.6s ease;
+    box-shadow:
+      33px 45px 1px 1px rgba(180,220,255,0.95),
+      120px 22px 1px 1px rgba(180,220,255,0.9),
+      205px 68px 1px 1px rgba(255,255,255,1),
+      65px 155px 1px 1px rgba(180,220,255,0.85),
+      245px 112px 1px 1px rgba(255,255,255,0.95),
+      90px 198px 1px 1px rgba(180,220,255,0.9),
+      175px 175px 1px 1px rgba(255,255,255,1),
+      15px 235px 1px 1px rgba(180,220,255,0.8),
+      140px 242px 1px 1px rgba(255,255,255,0.95),
+      260px 225px 1px 1px rgba(180,220,255,0.9),
+      /* duplicate set */
+      33px 295px 1px 1px rgba(180,220,255,0.95),
+      120px 272px 1px 1px rgba(180,220,255,0.9),
+      205px 318px 1px 1px rgba(255,255,255,1),
+      65px 405px 1px 1px rgba(180,220,255,0.85),
+      245px 362px 1px 1px rgba(255,255,255,0.95),
+      90px 448px 1px 1px rgba(180,220,255,0.9),
+      175px 425px 1px 1px rgba(255,255,255,1),
+      15px 485px 1px 1px rgba(180,220,255,0.8),
+      140px 492px 1px 1px rgba(255,255,255,0.95),
+      260px 475px 1px 1px rgba(180,220,255,0.9);
+  }
+
+  .card:hover::before {
+    opacity: 1;
+    animation: starDriftA 7s linear infinite;
+  }
+  .card:hover::after {
+    opacity: 1;
+    animation: starDriftB 11s linear infinite;
+  }
+
+  @keyframes starDriftA {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-250px); }
+  }
+  @keyframes starDriftB {
+    from { transform: translateY(-250px); }
+    to   { transform: translateY(0); }
+  }
+  .card:hover {
+    background: #1b1c1c;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--glow);
+  }
+  .card.selected {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 2px var(--accent2);
+  }
+  .card.hidden { display: none; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .card-icon {
+    width: 51px; height: 51px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    border: 1px solid #7a7a7a;
+  }
+  .card-meta { text-align: right; white-space: nowrap; }
+  .stars { color: var(--accent3); font-size: 0.75rem; letter-spacing: 1px; }
+  .rating-num {
+    font-size: 0.7rem;
+    color: var(--text2);
+    display: block;
+  }
+
+  .card-name {
+    font-family: 'Carter One', cursive;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .card-category {
+    font-size: 0.7rem;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.6rem;
+  }
+  .card-desc {
+    font-size: 0.825rem;
+    color: var(--text2);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .price-tag {
+    font-family: 'Carter One', cursive;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--pro);
+  }
+  .price-tag.paid { color: var(--accent3); }
+  .price-tag.enterprise { color: var(--text2); }
+
+  .select-compare {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #d99a1c;
+    color: #d1d1d1;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  [data-theme="dark"] .select-compare {
+    background: #1c1c1c;
+    color: #d1d1d1;
+  }
+  .select-compare:hover { border-color: var(--accent2); color: #d1d1d1; }
+  [data-theme="dark"] .select-compare:hover { background: #2e7d32; border-color: #2e7d32; color: #ffffff; }
+  .card.selected .select-compare {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: white;
+  }
+
+  /* ── MODAL ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+    animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: var(--con); color: white; border-color: var(--con); }
+
+  .modal-header { display: flex; align-items: center; gap: 14px; margin-bottom: 1.5rem; }
+  .modal-icon {
+    width: 64px; height: 64px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.1rem;
+    border: 1px solid #7a7a7a;
+  }
+  .modal-title { font-family: 'Carter One', cursive; font-weight: 800; font-size: 1.4rem; }
+  .modal-cat { color: var(--text3); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .modal-stars { color: var(--accent3); font-size: 1rem; margin-top: 4px; }
+
+  .modal-desc { color: var(--text2); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.5rem; font-weight: 600; }
+
+  .modal-price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg3);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .modal-price-label { color: var(--text3); font-size: 0.8rem; }
+  .modal-price-val { font-family: 'Carter One', cursive; font-weight: 700; color: var(--pro); font-size: 0.95rem; }
+  .modal-price-val.paid { color: var(--accent3); }
+
+  .pcons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .pcons-col h4 {
+    font-family: 'Carter One', cursive;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.6rem;
+  }
+  .pcons-col.pros h4 { color: var(--pro); }
+  .pcons-col.cons h4 { color: var(--con); }
+  .pcons-col ul { list-style: none; }
+  .pcons-col ul li {
+    font-size: 0.82rem;
+    color: var(--text2);
+    padding: 3px 0;
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .pcons-col.pros ul li::before { content: '+'; position: absolute; left: 0; color: var(--pro); font-weight: 700; }
+  .pcons-col.cons ul li::before { content: '−'; position: absolute; left: 0; color: var(--con); font-weight: 700; }
+
+  .modal-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: #ffffff;
+    font-family: 'Carter One', cursive;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .modal-link:hover { opacity: 0.85; }
+
+  /* ── COMPARE TABLE ── */
+  .compare-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 300;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+  }
+  .compare-overlay.open { display: flex; }
+
+  .compare-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 900px;
+    padding: 2rem;
+    position: relative;
+    animation: modalIn 0.3s ease;
+    margin: auto;
+  }
+  .compare-modal h2 {
+    font-family: 'Carter One', cursive;
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+  }
+  .compare-modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .compare-modal-close:hover { background: var(--con); color: white; border-color: var(--con); }
+
+  .compare-table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--bg3);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-family: 'Carter One', cursive;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child  { border-radius: 0 8px 0 0; }
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg3); }
+  td.tool-name-cell {
+    font-family: 'Carter One', cursive;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  td .mini-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .no-results {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text3);
+  }
+  .no-results p { font-size: 0.9rem; margin-top: 0.5rem; }
+
+  /* ── BCC USER RATING (card) ── */
+  .bcc-card-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border);
+    white-space: nowrap;
+  }
+  .bcc-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #158ca3;
+  }
+  .bcc-stars-display { color: #158ca3; font-size: 0.7rem; }
+  .bcc-count { font-size: 0.62rem; color: var(--text2); }
+
+  /* ── BCC COMMENT SECTION (modal) ── */
+  .bcc-section {
+    margin-top: 1.75rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+  }
+  .bcc-section-title {
+    font-family: 'Carter One', cursive;
+    font-size: 0.95rem;
+    color: #158ca3;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bcc-avg-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    padding: 0.6rem 0.9rem;
+    background: var(--bg3);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .bcc-avg-stars { color: #158ca3; font-size: 1rem; }
+  .bcc-avg-num { font-family: 'Carter One', cursive; font-size: 1rem; color: #158ca3; }
+  .bcc-avg-sub { font-size: 0.72rem; color: var(--text3); }
+
+  /* Star picker */
+  .star-picker { display: flex; gap: 6px; margin-bottom: 0.75rem; }
+  .star-picker span {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: transparent;
+    -webkit-text-stroke: 1.5px #000000;
+    transition: color 0.15s, transform 0.15s, -webkit-text-stroke 0.15s;
+    line-height: 1;
+  }
+  .star-picker span.active {
+    color: #158ca3;
+    -webkit-text-stroke: 0px transparent;
+  }
+  .star-picker span:hover { transform: scale(1.2); }
+
+  .bcc-name-input, .bcc-textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: #1b1c1c;
+    font-weight: 400;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 0.6rem;
+  }
+  .bcc-name-input { padding: 8px 12px; }
+  .bcc-textarea { padding: 10px 12px; resize: vertical; min-height: 70px; }
+  .bcc-name-input:focus, .bcc-textarea:focus { border-color: #158ca3; }
+  .bcc-name-input::placeholder, .bcc-textarea::placeholder { color: var(--text3); }
+
+  .bcc-submit {
+    background: #158ca3;
+    color: #ffffff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-family: 'Carter One', cursive;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 1.25rem;
+  }
+  .bcc-submit:hover { opacity: 0.85; }
+
+  /* Comments list */
+  .bcc-comments { display: flex; flex-direction: column; gap: 10px; }
+  .bcc-comment {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+  }
+  .bcc-comment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .bcc-comment-name { font-weight: 600; font-size: 0.8rem; color: var(--text); }
+  .bcc-comment-stars { color: #158ca3; font-size: 0.75rem; }
+  .bcc-comment-date { font-size: 0.68rem; color: var(--text3); }
+  .bcc-comment-text { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+  .bcc-empty { font-size: 0.8rem; color: var(--text3); font-style: italic; }
+
+  /* ── REFRESH BUTTON ── */
+  .refresh-btn {
+    background: #158ca3;
+    border: 1px solid #158ca3;
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-family: 'Carter One', cursive;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .refresh-btn:hover { background: #0f6e80; border-color: #0f6e80; }
+  .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .refresh-btn .spin { display: inline-block; }
+  .refresh-btn.loading .spin { animation: spinIcon 1s linear infinite; }
+  @keyframes spinIcon { to { transform: rotate(360deg); } }
+
+  /* ── LAST UPDATED ── */
+  .last-updated {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 0.5rem;
+    font-size: 0.72rem;
+    color: var(--text3);
+  }
+  .last-updated span { color: #d99a1c; font-weight: 600; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    background: #000000;
+    color: var(--text3);
+    font-size: 0.75rem;
+  }
+  footer .credit { color: #d99a1c; }
+  footer span { color: var(--accent); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    AI Tool Lab <span>& Angel Rittenburg</span>
+  </div>
+  <div class="header-right">
+    <div class="compare-badge" id="compareBadge">⊕ Compare Selected</div>
+    <button class="refresh-btn" id="refreshBtn" title="Reload data from Google Sheets">
+      <span class="spin">↻</span> Reload Sheet
+    </button>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Find Your <em>Perfect</em> AI Tool</h1>
+  <p>Compare the top AI tools side by side. Built for curious students and creators.</p>
+</section>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search tools…">
+  </div>
+  <select id="categoryFilter">
+    <option value="">All Categories</option>
+    <option value="Writing & Chat">Writing & Chat</option>
+    <option value="Image Generation">Image Generation</option>
+    <option value="Video Generation">Video Generation</option>
+    <option value="Music & Audio">Music & Audio</option>
+    <option value="Coding">Coding</option>
+    <option value="Research">Research</option>
+    <option value="Design">Design</option>
+    <option value="Voice">Voice</option>
+  </select>
+  <select id="priceFilter">
+    <option value="">All Prices</option>
+    <option value="Free">Free</option>
+    <option value="Freemium">Freemium</option>
+    <option value="Paid">Paid</option>
+  </select>
+  <select id="ratingFilter">
+    <option value="">All Ratings</option>
+    <option value="4.5">4.5+</option>
+    <option value="4.0">4.0+</option>
+    <option value="3.5">3.5+</option>
+  </select>
+  <button class="reset-btn" id="resetBtn">✕ Reset</button>
+</div>
+<div class="results-info" id="resultsInfo"></div>
+<div class="last-updated" id="lastUpdated"></div>
+
+<div class="grid" id="toolGrid"></div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal" id="detailModal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-header">
+      <div class="modal-icon" id="mIcon"></div>
+      <div>
+        <div class="modal-title" id="mName"></div>
+        <div class="modal-cat" id="mCat"></div>
+        <div class="modal-stars" id="mStars"></div>
+      </div>
+    </div>
+    <p class="modal-desc" id="mDesc"></p>
+    <div class="modal-price-row">
+      <span class="modal-price-label">💰 Pricing:</span>
+      <span class="modal-price-val" id="mPrice"></span>
+    </div>
+    <div class="pcons-grid">
+      <div class="pcons-col pros">
+        <h4>✓ Pros</h4>
+        <ul id="mPros"></ul>
+      </div>
+      <div class="pcons-col cons">
+        <h4>✗ Cons</h4>
+        <ul id="mCons"></ul>
+      </div>
+    </div>
+    <a id="mLink" href="#" target="_blank" class="modal-link">Visit Website ↗</a>
+
+    <!-- BCC USER RATING SECTION -->
+    <div class="bcc-section">
+      <div class="bcc-section-title">🎓 BCC User Rating</div>
+      <div class="bcc-avg-row" id="bccAvgRow">
+        <span class="bcc-avg-stars" id="bccAvgStars">☆☆☆☆☆</span>
+        <span class="bcc-avg-num" id="bccAvgNum">—</span>
+        <span class="bcc-avg-sub" id="bccAvgSub">No ratings yet</span>
+      </div>
+      <div class="star-picker" id="starPicker">
+        <span data-v="1">★</span>
+        <span data-v="2">★</span>
+        <span data-v="3">★</span>
+        <span data-v="4">★</span>
+        <span data-v="5">★</span>
+      </div>
+      <input class="bcc-name-input" id="bccName" type="text" placeholder="Your name (optional)" maxlength="40">
+      <textarea class="bcc-textarea" id="bccComment" placeholder="Share your experience with this tool…" maxlength="400"></textarea>
+      <button class="bcc-submit" id="bccSubmit">Post Rating</button>
+      <div class="bcc-comments" id="bccCommentsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="compare-overlay" id="compareOverlay">
+  <div class="compare-modal">
+    <button class="compare-modal-close" id="compareClose">✕</button>
+    <h2>⊕ Side-by-Side Comparison</h2>
+    <div class="compare-table-wrap">
+      <table id="compareTable"></table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div style="font-weight:700; letter-spacing:1px; margin-bottom:6px; color:#ffffff;">FOR EDUCATIONAL USE ONLY — NON COMMERCIAL TOOL</div>
+  <span class="credit">Built for students & creators from AI Tool Lab's "Find Your Perfect AI Tool" prompt tweaked by Angel Rittenburg · </span><span>Data current as of 2025</span>
+</footer>
+
+<script>
+// ── CONFIGURATION — update this value ────────────────────────
+// 1. Create a Google Sheet with these exact column headers in row 1:
+//    name | icon | iconBg | category | price | priceDetail | rating | shortDesc | fullDesc | pros | cons | url
+//    (pros and cons are pipe-separated, e.g.  "Fast|Cheap|Easy"  )
+// 2. File → Share → Publish to web → Sheet1 → CSV → Publish
+// 3. Copy the Sheet ID from the URL (the long string between /d/ and /edit)
+//    e.g. https://docs.google.com/spreadsheets/d/THIS_PART_HERE/edit
+// 4. Paste it below:
+const SHEET_ID = '1WnP3b0RFm8etIUT75h5Sv_kHOGAgHK2kpmYGPTkgiA4';
+// ─────────────────────────────────────────────────────────────
+
+const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+const tools = [
+  {
+    name: "Claude",
+    icon: "🟠",
+    iconBg: "#ff6b35",
+    category: "Writing & Chat",
+    price: "Freemium",
+    priceDetail: "Free tier · Pro $20/mo",
+    rating: 4.8,
+    shortDesc: "Anthropic's AI assistant known for nuanced reasoning, long documents, and safe, thoughtful outputs.",
+    fullDesc: "Claude is built by Anthropic with a focus on safety and helpfulness. It excels at long-form writing, document analysis, coding, and complex multi-step reasoning. Claude Pro offers priority access and much larger context windows — useful for multimedia students working with large scripts or legal documents.",
+    pros: ["Huge context window (200K tokens)", "Excellent at nuanced writing", "Great for document analysis", "Strong ethical guidelines"],
+    cons: ["No image generation", "Limited free tier requests", "Can be overly cautious"],
+    url: "https://claude.ai"
+  },
+  {
+    name: "ChatGPT",
+    icon: "🟢",
+    iconBg: "#10a37f",
+    category: "Writing & Chat",
+    price: "Freemium",
+    priceDetail: "Free · Plus $20/mo · Team $30/mo",
+    rating: 4.7,
+    shortDesc: "OpenAI's flagship conversational AI. The original mass-market chatbot with broad capabilities.",
+    fullDesc: "ChatGPT by OpenAI is the most widely recognized AI assistant. GPT-4o handles text, images, and voice inputs. Its plugin and GPT store ecosystem add specialized functionality. It's a strong all-rounder for brainstorming, writing, research, and learning new skills.",
+    pros: ["Massive user ecosystem", "GPT Store with custom bots", "Voice and image input", "Web browsing capability"],
+    cons: ["Can hallucinate confidently", "Performance varies by model", "Rate limits on free tier"],
+    url: "https://chatgpt.com"
+  },
+  {
+    name: "Midjourney",
+    icon: "🎨",
+    iconBg: "#6366f1",
+    category: "Image Generation",
+    price: "Paid",
+    priceDetail: "Basic $10/mo · Standard $30/mo",
+    rating: 4.9,
+    shortDesc: "The gold standard for AI art generation. Stunning, painterly, highly stylized imagery.",
+    fullDesc: "Midjourney produces some of the most visually striking AI-generated artwork available. It runs via Discord and excels at fantasy, concept art, portraits, and environmental design. It's especially popular among artists, game designers, and multimedia creators who want fine aesthetic control.",
+    pros: ["Exceptional image quality", "Unique artistic styles", "Active creative community", "Great style references"],
+    cons: ["Discord-based (awkward UI)", "No free tier", "Limited direct editing", "Requires prompt skill"],
+    url: "https://midjourney.com"
+  },
+  {
+    name: "Adobe Firefly",
+    icon: "🔥",
+    iconBg: "#ff4f00",
+    category: "Image Generation",
+    price: "Freemium",
+    priceDetail: "Free credits · Premium in CC",
+    rating: 4.3,
+    shortDesc: "Adobe's generative AI built into Creative Cloud. Commercially safe and seamlessly integrated.",
+    fullDesc: "Adobe Firefly is designed for professional creators. Its images are trained on licensed content, making outputs commercially safe. It integrates directly into Photoshop, Illustrator, and Premiere Pro via Generative Fill and other features — perfect for students already using Adobe CC.",
+    pros: ["Built into Photoshop & Illustrator", "Commercially safe outputs", "Generative Fill is powerful", "Great for product mockups"],
+    cons: ["Requires Adobe subscription", "Less stylistically wild than MJ", "Credits deplete quickly"],
+    url: "https://firefly.adobe.com"
+  },
+  {
+    name: "RunwayML",
+    icon: "🎬",
+    iconBg: "#8b5cf6",
+    category: "Video Generation",
+    price: "Freemium",
+    priceDetail: "Free 125 credits · Standard $15/mo",
+    rating: 4.5,
+    shortDesc: "Professional AI video generation and editing. The choice of filmmakers and VFX artists.",
+    fullDesc: "Runway offers Gen-3 Alpha for text-to-video and image-to-video generation, plus AI-powered video editing tools like background removal, motion tracking, and green screen. It's widely used in real film and television production workflows.",
+    pros: ["Gen-3 produces cinematic results", "Pro editing tools included", "Used in real productions", "Good for visual effects"],
+    cons: ["Credits run out fast", "Rendering is slow", "Expensive at higher tiers", "Output can be inconsistent"],
+    url: "https://runwayml.com"
+  },
+  {
+    name: "Suno AI",
+    icon: "🎵",
+    iconBg: "#ec4899",
+    category: "Music & Audio",
+    price: "Freemium",
+    priceDetail: "Free tier · Pro $8/mo",
+    rating: 4.6,
+    shortDesc: "Generate complete songs with vocals, instruments, and lyrics from a simple text prompt.",
+    fullDesc: "Suno AI creates full songs — complete with singing, instruments, and production — from a text prompt in seconds. It's a breakthrough for multimedia projects needing original music without licensing costs. Great for short films, animations, social media content, and creative experimentation.",
+    pros: ["Full songs in seconds", "Any genre or style", "Affordable Pro plan", "Great for multimedia projects"],
+    cons: ["Less control over fine details", "Commercial rights need Pro plan", "Vocals can sound off", "No stem separation"],
+    url: "https://suno.com"
+  },
+  {
+    name: "GitHub Copilot",
+    icon: "👾",
+    iconBg: "#1f2328",
+    category: "Coding",
+    price: "Paid",
+    priceDetail: "Individual $10/mo · Free for students",
+    rating: 4.6,
+    shortDesc: "AI pair programmer that autocompletes code inside your editor in real time.",
+    fullDesc: "GitHub Copilot uses OpenAI Codex to suggest entire code blocks, functions, and files as you type. It supports dozens of languages and integrates with VS Code, JetBrains, and more. Students can get it FREE through GitHub Education — a must-have for any coding class.",
+    pros: ["Real-time code completion", "FREE for students", "Supports 20+ languages", "Explains code on demand"],
+    cons: ["Can suggest insecure code", "Requires internet", "Not always contextually aware", "Subscription for non-students"],
+    url: "https://github.com/features/copilot"
+  },
+  {
+    name: "Perplexity",
+    icon: "🔭",
+    iconBg: "#0ea5e9",
+    category: "Research",
+    price: "Freemium",
+    priceDetail: "Free · Pro $20/mo",
+    rating: 4.5,
+    shortDesc: "An AI-powered search engine that gives cited, up-to-date answers from the live web.",
+    fullDesc: "Perplexity bridges the gap between search engines and chatbots. Every answer includes source citations and links, making it ideal for research and fact-checking. Its Pro version unlocks GPT-4, Claude, and image generation. Excellent for students who need reliable, sourced information quickly.",
+    pros: ["Real-time web knowledge", "Cites all sources", "Research-focused features", "Fast and accurate"],
+    cons: ["Less creative than pure chatbots", "Free tier limits daily searches", "Depth varies by topic"],
+    url: "https://perplexity.ai"
+  },
+  {
+    name: "ElevenLabs",
+    icon: "🎙️",
+    iconBg: "#d99a1c",
+    category: "Voice",
+    price: "Freemium",
+    priceDetail: "Free 10k chars/mo · Starter $5/mo",
+    rating: 4.7,
+    shortDesc: "Ultra-realistic AI voice synthesis and voice cloning. The best in the industry.",
+    fullDesc: "ElevenLabs produces the most natural-sounding AI speech available. It can clone any voice from a short audio sample, generate narration in 29 languages, and create full audiobooks or character voices. Perfect for animations, podcasts, short films, and accessibility projects.",
+    pros: ["Most realistic AI voices", "Voice cloning capability", "Multi-language support", "Great for animations & films"],
+    cons: ["Voice cloning raises ethical questions", "Free tier is limited", "Best voices require paid tier"],
+    url: "https://elevenlabs.io"
+  },
+  {
+    name: "Canva AI",
+    icon: "✏️",
+    iconBg: "#00c4cc",
+    category: "Design",
+    price: "Freemium",
+    priceDetail: "Free · Pro $13/mo",
+    rating: 4.4,
+    shortDesc: "AI-enhanced design platform. Generate images, write copy, and build presentations fast.",
+    fullDesc: "Canva's Magic Suite adds AI superpowers to its already popular design platform: Magic Write for copy, Magic Design for instant layouts, Magic Eraser for photo editing, and AI image generation built in. It's the fastest way for non-designers to produce polished visual content.",
+    pros: ["Beginner-friendly interface", "Templates for everything", "Collaborative features", "AI tools are well-integrated"],
+    cons: ["Less precise than Photoshop", "AI outputs can feel generic", "Best features need Pro plan"],
+    url: "https://canva.com"
+  },
+  {
+    name: "Kling AI",
+    icon: "🎥",
+    iconBg: "#3b82f6",
+    category: "Video Generation",
+    price: "Freemium",
+    priceDetail: "Free credits · Starter $8/mo",
+    rating: 4.4,
+    shortDesc: "Chinese-developed AI video generator producing smooth, realistic footage from text or images.",
+    fullDesc: "Kling AI from Kuaishou produces some of the most fluid and physically realistic AI video available, with impressive handling of human motion, faces, and environmental effects. It supports up to 2-minute clips and excels at both text-to-video and image-to-video tasks.",
+    pros: ["Realistic human motion", "Up to 2-minute clips", "Affordable pricing", "Strong image-to-video"],
+    cons: ["Interface can be slow", "Less creative control vs Runway", "Limited prompt styles"],
+    url: "https://klingai.com"
+  },
+  {
+    name: "Gemini",
+    icon: "💎",
+    iconBg: "#4285f4",
+    category: "Writing & Chat",
+    price: "Freemium",
+    priceDetail: "Free · Advanced $20/mo",
+    rating: 4.4,
+    shortDesc: "Google's multimodal AI integrated across the entire Google Workspace ecosystem.",
+    fullDesc: "Google Gemini powers AI features across Gmail, Docs, Slides, Sheets, and more. It's multimodal — understanding text, images, audio, and video. Gemini Advanced uses the Ultra 1.0 model for complex reasoning. For students deep in Google's ecosystem, it's a natural choice.",
+    pros: ["Integrated into Google Workspace", "Multimodal (text, image, video)", "Google search integration", "Free tier is generous"],
+    cons: ["Less nuanced writing than Claude", "Privacy concerns with Google", "Workspace features need subscription"],
+    url: "https://gemini.google.com"
+  }
+];
+
+const selectedTools = new Set();
+let currentTool = null;
+
+function starsHtml(r) {
+  const full = Math.floor(r);
+  const half = r % 1 >= 0.5;
+  let s = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(5 - full - (half?1:0));
+  return s;
+}
+
+function priceClass(p) {
+  if (p === 'Free') return '';
+  if (p === 'Freemium') return '';
+  return 'paid';
+}
+
+function renderCards(filtered) {
+  const grid = document.getElementById('toolGrid');
+  grid.innerHTML = '';
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="no-results"><div style="font-size:2rem">🔍</div><p>No tools match your filters. Try resetting!</p></div>';
+    return;
+  }
+  filtered.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'card' + (selectedTools.has(t.name) ? ' selected' : '');
+    div.style.animationDelay = (i * 0.04) + 's';
+    div.dataset.name = t.name;
+    div.innerHTML = `
+      <div class="card-header">
+        <div class="card-icon" style="background:${t.iconBg}22;color:${t.iconBg};font-size:1.6rem">${t.icon}</div>
+        <div class="card-meta">
+          <div class="stars">${starsHtml(t.rating)}</div>
+          <span class="rating-num">${t.rating} / 5.0</span>
+          <div class="bcc-card-row" id="bcc-card-${t.name.replace(/\s/g,'_')}">
+            <span class="bcc-label">BCC</span>
+            <span class="bcc-stars-display">☆☆☆☆☆</span>
+            <span class="bcc-count">0 ratings</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-name">${t.name}</div>
+      <div class="card-category">${t.category}</div>
+      <p class="card-desc">${t.shortDesc}</p>
+      <div class="card-footer">
+        <span class="price-tag ${priceClass(t.price)}">${t.price}</span>
+        <button class="select-compare" data-name="${t.name}">
+          ${selectedTools.has(t.name) ? '✓ Selected' : '+ Compare'}
+        </button>
+      </div>
+    `;
+    div.querySelector('.select-compare').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSelect(t.name);
+    });
+    div.addEventListener('click', () => openModal(t));
+    grid.appendChild(div);
+  });
+  document.getElementById('resultsInfo').textContent =
+    `${filtered.length} tool${filtered.length !== 1 ? 's' : ''} found`;
+}
+
+function toggleSelect(name) {
+  if (selectedTools.has(name)) {
+    selectedTools.delete(name);
+  } else {
+    if (selectedTools.size >= 4) { alert('Max 4 tools for comparison.'); return; }
+    selectedTools.add(name);
+  }
+  const badge = document.getElementById('compareBadge');
+  if (selectedTools.size > 1) {
+    badge.classList.add('visible');
+    badge.textContent = `⊕ Compare ${selectedTools.size} Tools`;
+  } else {
+    badge.classList.remove('visible');
+  }
+  applyFilters();
+}
+
+function openModal(t) {
+  currentTool = t;
+  document.getElementById('mIcon').textContent = t.icon;
+  document.getElementById('mIcon').style.background = t.iconBg + '22';
+  document.getElementById('mIcon').style.color = t.iconBg;
+  document.getElementById('mName').textContent = t.name;
+  document.getElementById('mCat').textContent = t.category;
+  document.getElementById('mStars').textContent = starsHtml(t.rating) + '  ' + t.rating;
+  document.getElementById('mDesc').textContent = t.fullDesc;
+  const priceEl = document.getElementById('mPrice');
+  priceEl.textContent = t.priceDetail;
+  priceEl.className = 'modal-price-val ' + (t.price === 'Paid' ? 'paid' : '');
+  document.getElementById('mPros').innerHTML = t.pros.map(p => `<li>${p}</li>`).join('');
+  document.getElementById('mCons').innerHTML = t.cons.map(c => `<li>${c}</li>`).join('');
+  document.getElementById('mLink').href = t.url;
+  renderBccModal(t.name);
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('detailOverlay').classList.remove('open');
+});
+document.getElementById('detailOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('detailOverlay'))
+    document.getElementById('detailOverlay').classList.remove('open');
+});
+
+// Compare
+document.getElementById('compareBadge').addEventListener('click', openCompare);
+document.getElementById('compareClose').addEventListener('click', () => {
+  document.getElementById('compareOverlay').classList.remove('open');
+});
+
+function openCompare() {
+  const sel = tools.filter(t => selectedTools.has(t.name));
+  const rows = [
+    { label: 'Tool', key: null },
+    { label: 'Category', key: 'category' },
+    { label: 'Price', key: 'price' },
+    { label: 'Pricing Detail', key: 'priceDetail' },
+    { label: 'Rating', key: 'rating' },
+    { label: 'Best For', key: 'shortDesc' },
+    { label: 'Top Pro', key: null, fn: t => t.pros[0] },
+    { label: 'Top Con', key: null, fn: t => t.cons[0] },
+    { label: 'Website', key: null, fn: t => `<a href="${t.url}" target="_blank" style="color:var(--accent);text-decoration:none">Visit ↗</a>` }
+  ];
+  let html = '<thead><tr><th>Feature</th>' + sel.map(t =>
+    `<th><span style="font-size:1.1rem">${t.icon}</span> ${t.name}</th>`
+  ).join('') + '</tr></thead><tbody>';
+  rows.forEach(r => {
+    html += '<tr>';
+    html += `<td style="color:var(--text3);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap">${r.label}</td>`;
+    sel.forEach(t => {
+      let val = r.fn ? r.fn(t) : (r.key ? t[r.key] : `<span class="mini-icon">${t.icon} ${t.name}</span>`);
+      if (r.label === 'Rating') val = starsHtml(t.rating) + ' ' + t.rating;
+      html += `<td>${val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  document.getElementById('compareTable').innerHTML = html;
+  document.getElementById('compareOverlay').classList.add('open');
+}
+
+// Filters
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('categoryFilter').value;
+  const price = document.getElementById('priceFilter').value;
+  const minRating = parseFloat(document.getElementById('ratingFilter').value) || 0;
+  const filtered = tools.filter(t => {
+    if (q && !t.name.toLowerCase().includes(q) && !t.shortDesc.toLowerCase().includes(q) && !t.category.toLowerCase().includes(q)) return false;
+    if (cat && t.category !== cat) return false;
+    if (price && t.price !== price) return false;
+    if (t.rating < minRating) return false;
+    return true;
+  });
+  renderCards(filtered);
+}
+
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+document.getElementById('priceFilter').addEventListener('change', applyFilters);
+document.getElementById('ratingFilter').addEventListener('change', applyFilters);
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('categoryFilter').value = '';
+  document.getElementById('priceFilter').value = '';
+  document.getElementById('ratingFilter').value = '';
+  selectedTools.clear();
+  document.getElementById('compareBadge').classList.remove('visible');
+  applyFilters();
+});
+
+// Theme
+const toggle = document.getElementById('themeToggle');
+toggle.textContent = '☀️';
+toggle.addEventListener('click', () => {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  toggle.textContent = isDark ? '🌛' : '☀️';
+});
+
+// ── BCC RATING SYSTEM ──
+let pickedStars = 0;
+
+function bccKey(name) { return 'bcc_' + name.replace(/\s/g,'_'); }
+
+function getBccData(name) {
+  try {
+    const raw = localStorage.getItem(bccKey(name));
+    return raw ? JSON.parse(raw) : { comments: [] };
+  } catch { return { comments: [] }; }
+}
+
+function saveBccData(name, data) {
+  try { localStorage.setItem(bccKey(name), JSON.stringify(data)); } catch {}
+}
+
+function bccAvg(comments) {
+  if (!comments.length) return 0;
+  return (comments.reduce((s,c) => s + c.stars, 0) / comments.length).toFixed(1);
+}
+
+function starsFilledHtml(n, total=5) {
+  return '★'.repeat(Math.round(n)) + '☆'.repeat(total - Math.round(n));
+}
+
+function updateBccCard(name) {
+  const key = name.replace(/\s/g,'_');
+  const el = document.getElementById('bcc-card-' + key);
+  if (!el) return;
+  const data = getBccData(name);
+  const avg = bccAvg(data.comments);
+  el.querySelector('.bcc-stars-display').textContent = avg > 0 ? starsFilledHtml(avg) : '☆☆☆☆☆';
+  el.querySelector('.bcc-count').textContent = data.comments.length + ' rating' + (data.comments.length !== 1 ? 's' : '');
+}
+
+function renderBccModal(name) {
+  const data = getBccData(name);
+  const avg = bccAvg(data.comments);
+  document.getElementById('bccAvgStars').textContent = avg > 0 ? starsFilledHtml(avg) : '☆☆☆☆☆';
+  document.getElementById('bccAvgNum').textContent = avg > 0 ? avg + ' / 5' : '—';
+  document.getElementById('bccAvgSub').textContent = data.comments.length
+    ? data.comments.length + ' student rating' + (data.comments.length !== 1 ? 's' : '')
+    : 'No ratings yet — be the first!';
+  const list = document.getElementById('bccCommentsList');
+  if (!data.comments.length) {
+    list.innerHTML = '<p class="bcc-empty">No comments yet. Share your experience!</p>';
+  } else {
+    list.innerHTML = [...data.comments].reverse().map(c => `
+      <div class="bcc-comment">
+        <div class="bcc-comment-header">
+          <span class="bcc-comment-name">${c.name || 'Anonymous'}</span>
+          <span class="bcc-comment-stars">${starsFilledHtml(c.stars)}</span>
+        </div>
+        <div class="bcc-comment-date">${c.date}</div>
+        ${c.text ? `<p class="bcc-comment-text">${c.text}</p>` : ''}
+      </div>
+    `).join('');
+  }
+  pickedStars = 0;
+  document.querySelectorAll('#starPicker span').forEach(s => s.classList.remove('active'));
+  document.getElementById('bccComment').value = '';
+  document.getElementById('bccName').value = '';
+}
+
+// Star picker interactions
+document.getElementById('starPicker').addEventListener('mouseover', (e) => {
+  if (!e.target.dataset.v) return;
+  const v = +e.target.dataset.v;
+  document.querySelectorAll('#starPicker span').forEach(s => {
+    s.classList.toggle('active', +s.dataset.v <= v);
+  });
+});
+document.getElementById('starPicker').addEventListener('mouseleave', () => {
+  document.querySelectorAll('#starPicker span').forEach(s => {
+    s.classList.toggle('active', +s.dataset.v <= pickedStars);
+  });
+});
+document.getElementById('starPicker').addEventListener('click', (e) => {
+  if (!e.target.dataset.v) return;
+  pickedStars = +e.target.dataset.v;
+  document.querySelectorAll('#starPicker span').forEach(s => {
+    s.classList.toggle('active', +s.dataset.v <= pickedStars);
+  });
+});
+
+document.getElementById('bccSubmit').addEventListener('click', () => {
+  if (!pickedStars) { alert('Please pick a star rating first!'); return; }
+  const name = currentTool.name;
+  const data = getBccData(name);
+  const text = document.getElementById('bccComment').value.trim();
+  const who  = document.getElementById('bccName').value.trim();
+  const now  = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  data.comments.push({ stars: pickedStars, text, name: who, date: now });
+  saveBccData(name, data);
+  renderBccModal(name);
+  updateBccCard(name);
+});
+
+// ── LAST UPDATED ──
+function setLastUpdated(dateStr) {
+  const el = document.getElementById('lastUpdated');
+  if (dateStr) {
+    el.innerHTML = `🕐 Sheet last loaded: <span>${dateStr}</span>`;
+    try { localStorage.setItem('aitool_lastUpdated', dateStr); } catch {}
+  } else {
+    const saved = (() => { try { return localStorage.getItem('aitool_lastUpdated'); } catch { return null; } })();
+    el.innerHTML = saved
+      ? `🕐 Sheet last loaded: <span>${saved}</span>`
+      : `🕐 Loading data from Google Sheets…`;
+  }
+}
+setLastUpdated(null);
+
+// ── CSV PARSER ──
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map(line => {
+    // Handle quoted fields with commas inside
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; continue; }
+      cur += ch;
+    }
+    cols.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = cols[i] || ''; });
+    return obj;
+  });
+}
+
+function csvRowToTool(row) {
+  return {
+    name:       row.name       || '',
+    icon:       row.icon       || '🤖',
+    iconBg:     row.iconBg     || '#888888',
+    category:   row.category   || 'General',
+    price:      row.price      || 'Freemium',
+    priceDetail:row.priceDetail|| '',
+    rating:     parseFloat(row.rating) || 4.0,
+    shortDesc:  row.shortDesc  || '',
+    fullDesc:   row.fullDesc   || '',
+    pros:       row.pros  ? row.pros.split('|').map(s => s.trim())  : [],
+    cons:       row.cons  ? row.cons.split('|').map(s => s.trim())  : [],
+    url:        row.url        || '#'
+  };
+}
+
+// ── RELOAD FROM SHEETS ──
+const refreshBtn = document.getElementById('refreshBtn');
+
+async function loadFromSheet(silent = false) {
+  if (!silent) {
+    refreshBtn.disabled = true;
+    refreshBtn.classList.add('loading');
+    refreshBtn.innerHTML = '<span class="spin">↻</span> Loading…';
+  }
+
+  if (SHEET_ID === 'YOUR_SHEET_ID_HERE') {
+    document.getElementById('lastUpdated').innerHTML =
+      `⚠️ <span>No Sheet ID set — using built-in data. Add your SHEET_ID to the config.</span>`;
+    if (!silent) {
+      refreshBtn.disabled = false;
+      refreshBtn.classList.remove('loading');
+      refreshBtn.innerHTML = '<span class="spin">↻</span> Reload Sheet';
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(SHEET_CSV_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if (!rows.length) throw new Error('Sheet appears empty.');
+
+    // Replace tools array contents
+    tools.length = 0;
+    rows.forEach(row => { if (row.name) tools.push(csvRowToTool(row)); });
+
+    const now = new Date().toLocaleString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+    setLastUpdated(now);
+    applyFilters();
+    if (!silent) alert('✅ Data reloaded from Google Sheets!');
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('lastUpdated').innerHTML =
+      `⚠️ <span>Could not load sheet: ${err.message}. Check your SHEET_ID and that the sheet is published.</span>`;
+    if (!silent) alert('❌ Could not load sheet.\n\n' + err.message +
+      '\n\nMake sure:\n1. SHEET_ID is correct\n2. File → Share → Publish to web is enabled');
+  } finally {
+    if (!silent) {
+      refreshBtn.disabled = false;
+      refreshBtn.classList.remove('loading');
+      refreshBtn.innerHTML = '<span class="spin">↻</span> Reload Sheet';
+    }
+  }
+}
+
+refreshBtn.addEventListener('click', () => loadFromSheet(false));
+
+// Auto-load from sheet on page open
+loadFromSheet(true);
+
+// Init
+renderCards(tools);
+tools.forEach(t => updateBccCard(t.name));
+</script>
+</body>
+</html>
