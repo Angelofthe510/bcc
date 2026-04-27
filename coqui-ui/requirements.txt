@@ -1,0 +1,10 @@
+# Coqui TTS UI - Python dependencies
+# Install with: pip install -r requirements.txt
+
+coqui-tts>=0.25.0
+flask>=3.0.0
+flask-cors>=4.0.0
+yt-dlp>=2024.1.0
+
+# Also required (install via Homebrew, not pip):
+#   brew install ffmpeg

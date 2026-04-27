@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coqui TTS Studio</title>
+  <style>
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #22263a;
+      --border:    #2e3350;
+      --accent:    #6c63ff;
+      --accent-h:  #8b85ff;
+      --success:   #34d399;
+      --error:     #f87171;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+      --radius:    12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-h));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    /* Status badge */
+    #status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      margin-top: 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.3s;
+    }
+
+    #status-badge.connected  { border-color: var(--success); color: var(--success); }
+    #status-badge.error      { border-color: var(--error);   color: var(--error);   }
+    #status-badge.connecting { border-color: #f59e0b; color: #f59e0b; }
+
+    #status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    #status-badge.connecting #status-dot {
+      animation: pulse-dot 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* Status row — badge + GO ONLINE button side by side */
+    #status-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+
+    #go-online-btn {
+      display: none;
+      padding: 0.28rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border-radius: 999px;
+      border: 1px solid var(--success);
+      background: rgba(52, 211, 153, 0.12);
+      color: var(--success);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    #go-online-btn:hover  { background: rgba(52, 211, 153, 0.25); }
+    #go-online-btn:active { transform: scale(0.96); }
+
+    /* Main card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 720px;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Text area */
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 0.85rem 1rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus { border-color: var(--accent); }
+
+    .char-count {
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    .char-count.warn { color: var(--error); }
+
+    /* Controls row */
+    .controls-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2rem;
+    }
+
+    select:focus { border-color: var(--accent); }
+
+    /* Voice cloning section */
+    .clone-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .clone-zone:hover, .clone-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(108, 99, 255, 0.06);
+    }
+
+    .clone-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .clone-zone-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+
+    .clone-zone-text {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .clone-zone-text strong { color: var(--text); }
+
+    #file-name {
+      margin-top: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--success);
+      display: none;
+    }
+
+    .clear-file-btn {
+      background: none;
+      border: none;
+      color: var(--error);
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-left: 0.5rem;
+      text-decoration: underline;
+    }
+
+    /* Generate button */
+    .btn-generate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-h));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 1.25rem;
+    }
+
+    .btn-generate:hover:not(:disabled) { opacity: 0.9; }
+    .btn-generate:active:not(:disabled) { transform: scale(0.98); }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Output section */
+    #output-card { display: none; }
+
+    .audio-player {
+      width: 100%;
+      border-radius: 8px;
+      accent-color: var(--accent);
+    }
+
+    .output-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.1rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+
+    /* Progress bar */
+    #progress-wrap {
+      display: none;
+      margin-top: 1.25rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .progress-pct {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-h);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--surface2);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-h));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+      position: relative;
+    }
+
+    /* shimmer effect */
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+      animation: shimmer 1.4s infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+
+    .progress-eta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      text-align: right;
+    }
+
+    /* Error message */
+    #error-msg {
+      display: none;
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid var(--error);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      color: var(--error);
+      margin-top: 0.75rem;
+    }
+
+    /* URL loader */
+    .url-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .url-divider::before, .url-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .url-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .url-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.85rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .url-input:focus { border-color: var(--accent); }
+    .url-input::placeholder { color: var(--muted); }
+
+    .time-input {
+      width: 110px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.85rem;
+      padding: 0.6rem 0.75rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .time-input:focus { border-color: var(--accent); }
+    .time-input::placeholder { color: var(--muted); }
+
+    .btn-load-url {
+      padding: 0.6rem 1rem;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: var(--accent-h);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-load-url:hover { background: rgba(108,99,255,0.12); }
+    .btn-load-url:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .url-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    #url-status {
+      font-size: 0.82rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    #url-status.ok  { color: var(--success); }
+    #url-status.err { color: var(--error); }
+
+    /* Tip box */
+    .tip {
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 0.6rem 0.9rem;
+      margin-top: 0.75rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 500px) {
+      .controls-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🐸 Coqui TTS Studio</h1>
+    <p>Local AI voice synthesis &amp; cloning — powered by XTTS v2</p>
+    <div id="status-row">
+      <div id="status-badge">
+        <span id="status-dot"></span>
+        <span id="status-text">Checking backend…</span>
+      </div>
+      <button id="go-online-btn">⚡ GO ONLINE</button>
+    </div>
+  </header>
+
+  <!-- Text Input -->
+  <div class="card">
+    <div class="card-title">📝 Text to Speak</div>
+    <textarea id="text-input" placeholder="Type or paste the text you want to synthesize…" maxlength="3000"></textarea>
+    <div class="char-count"><span id="char-count">0</span> / 3000</div>
+  </div>
+
+  <!-- Settings -->
+  <div class="card">
+    <div class="card-title">⚙️ Settings</div>
+    <div class="controls-row">
+      <div class="field">
+        <label for="lang-select">Language</label>
+        <select id="lang-select">
+          <option value="en">English</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice Cloning -->
+  <div class="card">
+    <div class="card-title">🎤 Voice Cloning (optional)</div>
+    <div class="clone-zone" id="clone-zone">
+      <input type="file" id="speaker-file" accept=".wav,.mp3,.flac,.ogg" />
+      <div class="clone-zone-icon">🎙️</div>
+      <div class="clone-zone-text">
+        <strong>Drop your voice sample here</strong><br/>
+        or click to browse — WAV, MP3, FLAC, OGG
+      </div>
+      <div id="file-name"></div>
+    </div>
+    <div class="url-divider">or load from URL</div>
+
+    <div class="url-row">
+      <input class="url-input" id="url-input" type="url"
+        placeholder="https://sfgov.org/meeting-recording.mp3  (or any public audio/video URL)" />
+      <input class="time-input" id="time-input" type="text"
+        placeholder="Start (0:00)" title="Start time — e.g. 1:23 or 83 (seconds)" />
+      <button class="btn-load-url" id="load-url-btn">⬇ Load Audio</button>
+    </div>
+    <div class="url-hint">
+      Paste any public audio or video URL. Add an optional start time to clip from that point (e.g. <em>1:23</em> or <em>83</em> for 83 seconds in). ~30s will be extracted.
+    </div>
+    <div id="url-status"></div>
+
+    <div class="tip">
+      💡 For best results, use a <strong>clear 6–30 second recording</strong> of your voice in a quiet environment.
+      Leave this empty to use the default speaker voice.
+    </div>
+  </div>
+
+  <!-- Generate Button + Progress + Error -->
+  <div style="width:100%;max-width:720px;">
+    <button class="btn-generate" id="generate-btn" disabled>
+      <span class="spinner" id="spinner"></span>
+      <span id="btn-label">Generate Speech</span>
+    </button>
+
+    <div id="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-label" id="progress-label">Generating speech…</span>
+        <span class="progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-eta" id="progress-eta"></div>
+    </div>
+
+    <div id="error-msg"></div>
+  </div>
+
+  <!-- Output -->
+  <div class="card" id="output-card">
+    <div class="card-title">🔊 Output</div>
+    <audio id="audio-player" class="audio-player" controls></audio>
+    <div class="output-actions">
+      <a id="download-btn" class="btn-secondary" download="coqui_output.wav">
+        ⬇️ Download WAV
+      </a>
+      <button class="btn-secondary" id="copy-text-btn">📋 Copy text</button>
+    </div>
+  </div>
+
+  <footer>
+    Powered by <a href="https://github.com/coqui-ai/TTS" target="_blank">Coqui XTTS v2</a> &mdash;
+    running locally on your machine. Your voice data never leaves your computer.
+  </footer>
+
+  <script>
+    const API = "http://127.0.0.1:5000";
+
+    // ── DOM refs ──────────────────────────────────────────────
+    const statusBadge  = document.getElementById("status-badge");
+    const statusText   = document.getElementById("status-text");
+    const goOnlineBtn  = document.getElementById("go-online-btn");
+    const textInput    = document.getElementById("text-input");
+    const charCount    = document.getElementById("char-count");
+    const langSelect   = document.getElementById("lang-select");
+    const speakerFile  = document.getElementById("speaker-file");
+    const cloneZone    = document.getElementById("clone-zone");
+    const fileNameEl   = document.getElementById("file-name");
+    const generateBtn  = document.getElementById("generate-btn");
+    const btnLabel     = document.getElementById("btn-label");
+    const spinner      = document.getElementById("spinner");
+    const errorMsg     = document.getElementById("error-msg");
+    const outputCard   = document.getElementById("output-card");
+    const audioPlayer  = document.getElementById("audio-player");
+    const downloadBtn  = document.getElementById("download-btn");
+    const copyTextBtn  = document.getElementById("copy-text-btn");
+
+    // ── Progress bar refs ─────────────────────────────────────
+    const progressWrap  = document.getElementById("progress-wrap");
+    const progressFill  = document.getElementById("progress-fill");
+    const progressPct   = document.getElementById("progress-pct");
+    const progressLabel = document.getElementById("progress-label");
+    const progressEta   = document.getElementById("progress-eta");
+
+    let progressInterval = null;
+
+    function startProgress(charCount) {
+      // Estimate seconds: ~8s per 100 chars on MPS, ~25s on CPU (we assume MPS)
+      const estimatedSecs = Math.max(10, Math.round(charCount / 100 * 8));
+      const startTime = Date.now();
+      let pct = 0;
+
+      progressWrap.style.display = "block";
+      progressFill.style.width = "0%";
+      progressPct.textContent = "0%";
+      progressLabel.textContent = "Generating speech…";
+      progressEta.textContent = `Estimated time: ~${estimatedSecs}s`;
+
+      progressInterval = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        // Ease toward 90% asymptotically based on estimated time
+        pct = Math.min(90, Math.round((elapsed / estimatedSecs) * 100));
+        progressFill.style.width = pct + "%";
+        progressPct.textContent = pct + "%";
+        const remaining = Math.max(0, Math.round(estimatedSecs - elapsed));
+        progressEta.textContent = remaining > 0 ? `~${remaining}s remaining` : "Almost done…";
+      }, 300);
+    }
+
+    function completeProgress() {
+      clearInterval(progressInterval);
+      progressFill.style.width = "100%";
+      progressPct.textContent = "100%";
+      progressLabel.textContent = "✅ Audio ready!";
+      progressEta.textContent = "";
+      setTimeout(() => { progressWrap.style.display = "none"; }, 2000);
+    }
+
+    function resetProgress() {
+      clearInterval(progressInterval);
+      progressWrap.style.display = "none";
+      progressFill.style.width = "0%";
+    }
+
+    // ── Backend status check ──────────────────────────────────
+    let _pollInterval = null;
+
+    async function checkBackend() {
+      try {
+        const res = await fetch(`${API}/api/status`, { signal: AbortSignal.timeout(3000) });
+        if (res.ok) {
+          stopPolling();
+          setStatus("connected", "Backend online");
+          goOnlineBtn.style.display = "none";
+          generateBtn.disabled = textInput.value.trim().length === 0;
+          loadLanguages();
+        } else {
+          throw new Error();
+        }
+      } catch {
+        if (statusBadge.className !== "connecting") {
+          setStatus("error", "Backend offline");
+          goOnlineBtn.style.display = "inline-flex";
+        }
+      }
+    }
+
+    function startPolling(intervalMs) {
+      stopPolling();
+      checkBackend();
+      _pollInterval = setInterval(checkBackend, intervalMs);
+    }
+
+    function stopPolling() {
+      if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
+    }
+
+    function setStatus(cls, msg) {
+      statusBadge.className = cls;
+      statusText.textContent = msg;
+    }
+
+    goOnlineBtn.addEventListener("click", () => {
+      setStatus("connecting", "Connecting…");
+      goOnlineBtn.style.display = "none";
+      // Poll aggressively every 800ms until the backend responds
+      startPolling(800);
+    });
+
+    // ── Load languages ────────────────────────────────────────
+    async function loadLanguages() {
+      try {
+        const res = await fetch(`${API}/api/languages`);
+        const langs = await res.json();
+        langSelect.innerHTML = langs
+          .map(l => `<option value="${l.code}">${l.name}</option>`)
+          .join("");
+      } catch (e) {
+        console.warn("Could not load languages", e);
+      }
+    }
+
+    // ── Text input ────────────────────────────────────────────
+    textInput.addEventListener("input", () => {
+      const len = textInput.value.length;
+      charCount.textContent = len;
+      charCount.parentElement.classList.toggle("warn", len > 2700);
+      generateBtn.disabled = len === 0 || statusBadge.className !== "connected";
+    });
+
+    // ── Drag & drop ───────────────────────────────────────────
+    cloneZone.addEventListener("dragover", e => { e.preventDefault(); cloneZone.classList.add("dragover"); });
+    cloneZone.addEventListener("dragleave", () => cloneZone.classList.remove("dragover"));
+    cloneZone.addEventListener("drop", e => {
+      e.preventDefault();
+      cloneZone.classList.remove("dragover");
+      const file = e.dataTransfer.files[0];
+      if (file) setFile(file);
+    });
+
+    speakerFile.addEventListener("change", () => {
+      if (speakerFile.files[0]) setFile(speakerFile.files[0]);
+    });
+
+    function setFile(file) {
+      fileNameEl.style.display = "block";
+      fileNameEl.innerHTML = `✅ ${file.name} <button class="clear-file-btn" onclick="clearFile()">remove</button>`;
+    }
+
+    function clearFile() {
+      speakerFile.value = "";
+      fileNameEl.style.display = "none";
+      fileNameEl.innerHTML = "";
+    }
+
+    // ── Generate ──────────────────────────────────────────────
+    generateBtn.addEventListener("click", async () => {
+      const text = textInput.value.trim();
+      if (!text) return;
+
+      // Loading state
+      generateBtn.disabled = true;
+      spinner.style.display = "block";
+      btnLabel.textContent = "Generating…";
+      errorMsg.style.display = "none";
+      outputCard.style.display = "none";
+      startProgress(text.length);
+
+      try {
+        const form = new FormData();
+        form.append("text", text);
+        form.append("language", langSelect.value);
+        if (speakerFile.files[0]) form.append("speaker_wav", speakerFile.files[0]);
+
+        const res = await fetch(`${API}/api/synthesize`, { method: "POST", body: form });
+
+        if (!res.ok) {
+          let msg = `Server error ${res.status}`;
+          try {
+            const err = await res.json();
+            msg = err.error || msg;
+          } catch (_) {
+            try { msg = await res.text() || msg; } catch (_) {}
+          }
+          throw new Error(msg);
+        }
+
+        // Grab filename from response header (requires CORS expose_headers on backend)
+        let filename = "coqui_output.wav";
+        try { filename = res.headers.get("X-Output-Filename") || filename; } catch(_) {}
+
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+
+        audioPlayer.src = url;
+        audioPlayer.load();
+        audioPlayer.play();
+
+        downloadBtn.href = url;
+        downloadBtn.download = filename;
+        completeProgress();
+        outputCard.style.display = "block";
+        outputCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      } catch (err) {
+        resetProgress();
+        showError(err.message);
+      } finally {
+        generateBtn.disabled = false;
+        spinner.style.display = "none";
+        btnLabel.textContent = "Generate Speech";
+      }
+    });
+
+
+    // ── URL Audio Loader ──────────────────────────────────────
+    const urlInput    = document.getElementById("url-input");
+    const timeInput   = document.getElementById("time-input");
+    const loadUrlBtn  = document.getElementById("load-url-btn");
+    const urlStatus   = document.getElementById("url-status");
+
+    function parseStartTime(val) {
+      // Accept "1:23", "83", "1h23m45s", or empty
+      val = val.trim();
+      if (!val) return 0;
+      // mm:ss or hh:mm:ss
+      if (val.includes(":")) {
+        const parts = val.split(":").map(Number);
+        if (parts.length === 2) return parts[0] * 60 + parts[1];
+        if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      }
+      // plain seconds
+      const n = parseFloat(val);
+      return isNaN(n) ? 0 : n;
+    }
+
+    loadUrlBtn.addEventListener("click", async () => {
+      const url = urlInput.value.trim();
+      if (!url) return;
+
+      loadUrlBtn.disabled = true;
+      loadUrlBtn.textContent = "⏳ Fetching…";
+      urlStatus.style.display = "none";
+      urlStatus.className = "";
+
+      try {
+        const startTime = parseStartTime(timeInput.value);
+        const res = await fetch(`${API}/api/fetch-audio`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, start_time: startTime })
+        });
+
+        if (!res.ok) {
+          let msg = `Error ${res.status}`;
+          try { msg = (await res.json()).error || msg; } catch(_) {}
+          throw new Error(msg);
+        }
+
+        // Convert response to a File object and set as the speaker input
+        const blob = await res.blob();
+        const fname = `url_clip_${Date.now()}.wav`;
+        const file  = new File([blob], fname, { type: "audio/wav" });
+
+        // Inject into the file input and show as selected
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        speakerFile.files = dt.files;
+        setFile(file);
+
+        urlStatus.style.display = "block";
+        urlStatus.className = "ok";
+        urlStatus.textContent = `✅ Audio loaded — ${startTime > 0 ? `clipped from ${timeInput.value}` : "full clip trimmed to 30s"}`;
+
+      } catch (err) {
+        urlStatus.style.display = "block";
+        urlStatus.className = "err";
+        urlStatus.textContent = `⚠️ ${err.message}`;
+      } finally {
+        loadUrlBtn.disabled = false;
+        loadUrlBtn.textContent = "⬇ Load Audio";
+      }
+    });
+
+    // ── Copy text ─────────────────────────────────────────────
+    copyTextBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(textInput.value).then(() => {
+        copyTextBtn.textContent = "✅ Copied!";
+        setTimeout(() => copyTextBtn.textContent = "📋 Copy text", 2000);
+      });
+    });
+
+    // ── Helpers ───────────────────────────────────────────────
+    function showError(msg) {
+      errorMsg.textContent = "⚠️ " + msg;
+      errorMsg.style.display = "block";
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    startPolling(4000);
+  </script>
+</body>
+</html>
