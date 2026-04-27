@@ -975,7 +975,22 @@
 const SHEET_ID = '1WnP3b0RFm8etIUT75h5Sv_kHOGAgHK2kpmYGPTkgiA4';
 // ─────────────────────────────────────────────────────────────
 
-const SHEET_CSV_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv&gid=0`)}`;
+const SHEET_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv&gid=0`;
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://proxy.cors.sh/${url}`,
+];
+
+async function fetchWithProxy(url) {
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(8000) });
+      if (res.ok) return res;
+    } catch (e) { continue; }
+  }
+  throw new Error('All proxies failed. Check that your Sheet is published to web.');
+}
 
 const tools = [
   {
@@ -1506,7 +1521,7 @@ async function loadFromSheet(silent = false) {
   }
 
   try {
-    const res = await fetch(SHEET_CSV_URL);
+    const res = await fetchWithProxy(SHEET_BASE_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     const rows = parseCSV(text);
